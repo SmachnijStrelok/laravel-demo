@@ -1,0 +1,71 @@
+version: '3.1'
+
+services:
+  php-fpm:
+      build:
+        context: ./
+        dockerfile: ./php-fpm.docker
+      hostname: 'php-fpm'
+      networks:
+        - backend
+      volumes:
+        - ./:/app
+        - ./storage/app:/app/storage/app
+      environment:
+        TZ: 'UTC'
+      working_dir: /app
+      restart: on-failure
+
+  nginx:
+      build:
+        context: ./
+        dockerfile: ./nginx.docker
+      env_file:
+        - .env
+      networks:
+        frontend:
+          aliases:
+            - nginx
+        backend:
+          aliases:
+            - apiServer
+
+      ports:
+        - 443:443
+        - 80:80
+      volumes:
+        - ./docker/data/nginx/logs:/var/log/nginx
+        - ./docker/ssl:/ssl
+        - ./public:/app/public
+        - ./resources:/app/resources
+        - ./storage:/app/storage
+        - ./docker/letsencrypt:/letsencrypt
+      environment:
+        TZ: 'UTC'
+      hostname: 'nginx'
+      working_dir: /app
+      restart: on-failure
+
+
+  postgresql:
+      image: postgres:9.6
+      ports:
+        - 127.0.0.1:5432:5432
+      hostname: 'postgresql'
+      working_dir: /app
+      restart: on-failure
+      networks:
+        - backend
+      environment:
+        POSTGRES_DB: iul
+        POSTGRES_USER: master
+        POSTGRES_PASSWORD: iul_rf
+        TZ: 'UTC'
+        PGTZ: 'UTC'
+      volumes:
+        - ./docker/data/postgresql:/var/lib/postgresql/data
+
+networks:
+  frontend:
+  backend:
+

@@ -1,0 +1,26 @@
+FROM nginx:latest
+USER root
+
+RUN mkdir -p /app/frontend /app/public /app/resources /app/scripts
+COPY ./.env /app/
+
+RUN apt-get update --fix-missing && \
+    apt-get install -y \
+    certbot
+
+
+EXPOSE 80 443
+
+ARG USE_HTTPS
+ARG SITE_NAME=_
+ENV SITE_NAME ${SITE_NAME}
+
+COPY ./public/ /app/public/
+COPY ./resources/ /app/resources/
+
+RUN rm /etc/nginx/nginx.conf
+COPY ./docker/nginx/nginx_http.conf /etc/nginx/nginx_http.conf
+COPY ./docker/nginx/deploy.sh /deploy.sh
+RUN /bin/bash /deploy.sh
+
+ENTRYPOINT ["nginx", "-g", "daemon off;"]

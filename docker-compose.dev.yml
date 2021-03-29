@@ -1,0 +1,20 @@
+version: '3.1'
+
+services:
+  php-fpm:
+      build:
+        context: ./
+        dockerfile: ./php-fpm.docker
+      volumes:
+        - ./:/app
+
+  nginx:
+      build:
+        context: ./
+        dockerfile: ./nginx.docker
+        args:
+          - SITE_NAME=${SITE_NAME}
+
+  postgresql:
+      ports:
+        - 127.0.0.1:5432:5432
