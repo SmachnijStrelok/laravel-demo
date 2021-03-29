@@ -31,7 +31,7 @@ class UploadController extends Controller
             $fileModel->original_file_name = $uploaderFile->getOriginalName();
             $fileModel->path = $uploaderFile->getPath();
             $fileModel->size = $uploaderFile->getSize();
-            $fileModel->user_id = 1;//Auth::user()->id;
+            $fileModel->user_id = Auth::user()->id;// 1
             $fileModel->created_at = date('Y-m-d H:i:s');
 
             $fileModel->save();
